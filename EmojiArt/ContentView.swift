@@ -8,17 +8,29 @@
 import SwiftUI
 
 struct ContentView: View {
+
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+        Text("Options")
+            .contextMenu {
+                Button {
+                    print("Change country setting")
+                } label: {
+                    Label("Choose Country", systemImage: "globe")
+                }
+
+                Button {
+                    print("Enable geolocation")
+                } label: {
+                    Label("Detect Location", systemImage: "location.circle")
+                }
+            }
     }
+   
+
 }
 
 #Preview {
     ContentView()
 }
+
