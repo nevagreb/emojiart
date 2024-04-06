@@ -7,6 +7,10 @@
 
 import Foundation
 
+struct NewStruct {
+    var a: String
+}
+
 struct EmojiArt: Codable {
     var background: URL?
     private(set) var emojis = [Emoji]()
@@ -27,9 +31,23 @@ struct EmojiArt: Codable {
         
     }
     
+    mutating func changeEmojiZoom(id: Emoji.ID, zoom: Double) {
+        if let index = findIndex(id) {
+            emojis[index]._zoom *= zoom
+        }
+    }
+    
+    mutating func addEmojiOffset(id: Emoji.ID, offset: Emoji.Position) {
+        if let index = findIndex(id) {
+            emojis[index]._offset += offset
+        }
+    }
+    
     mutating func addEmoji(_ emoji: String, at position: Emoji.Position, size: Int) {
         uniqueEmojiId += 1
-        emojis.append(Emoji(string: emoji, position: position, size: size, id: uniqueEmojiId))
+        let zoom = 1.0
+        let offset = Emoji.Position.zero
+        emojis.append(Emoji(string: emoji, position: position, size: size, _zoom: zoom, _offset: offset, id: uniqueEmojiId))
     }
     
     mutating func deleteEmoji(id: Int) {
@@ -46,6 +64,8 @@ struct EmojiArt: Codable {
         let string: String
         var position: Position
         var size: Int
+        var _zoom: Double
+        var _offset: Position
         var id: Int
         
         struct Position: Codable {
@@ -53,6 +73,15 @@ struct EmojiArt: Codable {
             var y: Int
             
             static let zero = Self(x: 0, y: 0)
+            
+            static func +(lhs: Position, rhs: Position) -> Position {
+                Position(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
+            }
+            
+            static func +=(lhs: inout Position, rhs: Position) {
+                lhs = lhs + rhs
+            }
         }
     }
 }
+

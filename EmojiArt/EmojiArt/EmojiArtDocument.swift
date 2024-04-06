@@ -133,18 +133,40 @@ class EmojiArtDocument: ObservableObject {
     func deleteEmoji(id: Int) {
         emojiArt.deleteEmoji(id: id)
     }
+    
+    func changeEmojiZoom(id: Emoji.ID, zoom: Double) {
+        emojiArt.changeEmojiZoom(id: id, zoom: zoom)
+    }
+    
+    func addEmojiOffset(id: Emoji.ID, offset: CGSize) {
+        emojiArt.addEmojiOffset(id: id, offset: EmojiArt.Emoji.Position(offset))
+    }
 }
 
 extension EmojiArt.Emoji {
     var font: Font {
         Font.system(size: CGFloat(size))
     }
+    
+    var zoom: CGFloat {
+        CGFloat(_zoom)
+    }
+    
+    var offset: CGSize {
+        CGSize(width: _offset.x, height: _offset.y)
+    }
+
 }
 
 extension EmojiArt.Emoji.Position {
     func `in`(_ geometry: GeometryProxy) -> CGPoint {
         let center = geometry.frame(in: .local).center
         return CGPoint(x: center.x + CGFloat(x), y: center.y - CGFloat(y))
+    }
+    
+    init(_ offset: CGSize) {
+        self.x = Int(offset.width)
+        self.y = Int(offset.height)
     }
 }
 

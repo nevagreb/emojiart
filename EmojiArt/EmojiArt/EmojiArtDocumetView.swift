@@ -44,18 +44,34 @@ struct EmojiArtDocumetView: View {
             .dropDestination(for: Sturldata.self) {sturldata, location in
                 return drop(sturldata, at: location, in: geometry)
             }
+//            .onChange(of: document.backround.uiImage) { uiImage, _ in
+//                zoomToFit(uiImage?.size, in: geometry)
+//            }
         }
     }
+        
+//    private func zoomToFit(_ size: CGSize?, in geometry: GeometryProxy) {
+//        if let size {
+//            zoomToFit(CGRect(center: .zero, size: size), in: geometry)
+//        }
+//    }
+//    
+//    private func zoomToFit(_ rect: CGRect, in geometry: GeometryProxy) {
+//        withAnimation {
+//            if rect.size.width > 0, rect.size.height > 0, geometry.size.width > 0, geometry.size.height > 0 {
+//                let hZoom = geometry.size.width / rect.size.width
+//                let vZoom = geometry.size.height / rect.size.height
+//                zoom = min(hZoom, vZoom)
+//                pan = CGSize(width: -rect.midX * zoom, height: -rect.midY * zoom )
+//            }
+//        }
+//    }
     
     @State private var zoom: CGFloat = 1
-    @State private var emojiZoom = [Emoji.ID : CGFloat]()
-    
     @GestureState private var gestureZoom: CGFloat = 1
     @GestureState private var emojiGestureZoom: CGFloat = 1
     
     @State private var pan: CGSize = .zero
-    @State private var emojiPan = [Emoji.ID : CGSize]()
-    
     @GestureState private var gesturePan: CGSize = .zero
     @GestureState private var emojiGesturePan: CGSize = .zero
     
@@ -69,7 +85,7 @@ struct EmojiArtDocumetView: View {
                     zoom *= endingPinchScale
                 } else {
                     selectedEmojis.forEach { id in
-                            emojiZoom[id]! *= endingPinchScale
+                        document.changeEmojiZoom(id: id, zoom: endingPinchScale)
                     }
                 }
             }
@@ -85,7 +101,7 @@ struct EmojiArtDocumetView: View {
                     pan += value.translation
                 } else {
                     selectedEmojis.forEach { id in
-                        emojiPan[id]! += value.translation
+                        document.addEmojiOffset(id: id, offset: value.translation)
                     }
                 }
             }
@@ -122,16 +138,10 @@ struct EmojiArtDocumetView: View {
                         document.deleteEmoji(id: emoji.id)
                     }
                 }
-            
-                .scaleEffect((emojiZoom[emoji.id] ?? 1) * (isSelected(emoji) ? emojiGestureZoom : 1))
-                .offset((emojiPan[emoji.id] ?? .zero) + (isSelected(emoji) ? emojiGesturePan : .zero))
+                .scaleEffect(addZoom(to: emoji))
+                .offset(addOffset(to: emoji))
                 .gesture(isSelected(emoji) ? panGesture.simultaneously(with: zoomGesture) : nil)
                 .position(emoji.position.in(geometry))
-            
-                .onAppear {
-                    emojiZoom[emoji.id] = 1
-                    emojiPan[emoji.id] = .zero
-                }
             
                 .onTapGesture {
                     if isSelected(emoji) {
@@ -141,6 +151,14 @@ struct EmojiArtDocumetView: View {
                     }
                 }
         }
+    }
+    
+    private func addZoom(to emoji: Emoji) -> CGFloat {
+        emoji.zoom * (isSelected(emoji) ? emojiGestureZoom : 1)
+    }
+    
+    private func addOffset(to emoji: Emoji) -> CGSize {
+        emoji.offset + (isSelected(emoji) ? emojiGesturePan : .zero)
     }
     
     @State private var selectedEmojis = Set<Emoji.ID>()

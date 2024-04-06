@@ -8,26 +8,28 @@
 import SwiftUI
 
 struct ContentView: View {
-
+//    @Environment(\.self) var environment
+    @State var color: Color = Color.gray
+    @State var components: Color.Resolved?
     
     var body: some View {
-        Text("Options")
-            .contextMenu {
-                Button {
-                    print("Change country setting")
-                } label: {
-                    Label("Choose Country", systemImage: "globe")
-                }
-
-                Button {
-                    print("Enable geolocation")
-                } label: {
-                    Label("Detect Location", systemImage: "location.circle")
-                }
-            }
+        VStack {
+            ColorPicker("Choose your color", selection: $color)
+            
+//            if let components {
+//                Text("R: \(components.red)")
+//                Text("G: \(components.green)")
+//                Text("B: \(components.blue)")
+//                Text("A: \(components.opacity)")
+//            }
+            
+            
+        }
+        .onChange(of: color, initial: true) {
+            //components = color.resolve(in: environment)
+            print(UIColor(color).cgColor.components ?? 0)
+        }
     }
-   
-
 }
 
 #Preview {
